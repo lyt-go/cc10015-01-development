@@ -653,3 +653,88 @@ SEED_ROWS: dict[str, list[dict[str, Any]]] = {
   '消费范围': '评估看板样例3',
   '看板版本': '评估看板样例3'}]
 }
+
+
+def _seed_member_events() -> list[dict[str, Any]]:
+    """成员事件示例：留存周期与成员事件口径同时登记。
+
+    每个同期群按首次行为周期展开成员，成员在各留存周期留下事件；
+    另造少量口径不一致（按日）的事件，用于验证口径未同时登记时不计入矩阵，
+    避免后续周期把未达标用户提前计入。
+    """
+    events: list[dict[str, Any]] = []
+    seq = 0
+
+    def add(cohort: str, member: str, first_period: str, period: str, caliber: str, day: str) -> None:
+        nonlocal seq
+        seq += 1
+        events.append({
+            "id": seq,
+            "事件编号": f"EV-{seq:04d}",
+            "群组编号": cohort,
+            "成员ID": member,
+            "首次行为周期": first_period,
+            "事件周期": period,
+            "周期口径": caliber,
+            "登记时间": day,
+        })
+
+    # (群组编号, 首次行为周期, 成员编号基数, 分母规模, 各周期留存人数, 起始登记日)
+    plan = [
+        ("COHO-0001", "2026-W36", 100, 10, [10, 8, 6, 5], "2026-09-01"),
+        ("COHO-0001", "2026-W37", 110, 8, [8, 5, 4, 3], "2026-09-08"),
+        ("COHO-0003", "2026-W36", 300, 6, [6, 4, 3, 2], "2026-09-01"),
+    ]
+    for cohort, first_period, base, size, counts, start_day in plan:
+        members = [f"U{base + i + 1}" for i in range(size)]
+        for offset, count in enumerate(counts):
+            for member in members[:count]:
+                add(cohort, member, first_period, f"第{offset}期", "按周", start_day)
+    # 口径未同时登记（按日）的事件：不计入按周矩阵，防止未达标用户提前计入。
+    for i in range(3):
+        add("COHO-0001", f"U{201 + i}", "2026-W36", "第1期", "按日", "2026-09-02")
+    return events
+
+
+SEED_ROWS["member_event"] = _seed_member_events()
+
+# 留存矩阵数据表：一条已通过 V001 留档核对的已确认样例，列表页首次打开即可看到确认结果。
+SEED_ROWS["retention_matrix"] = [
+    {
+        "id": 1,
+        "矩阵编号": "RETM-0001",
+        "群组编号": "COHO-0003",
+        "指标编号": "METR-0003",
+        "周期口径": "按周",
+        "首次行为周期": "2026-W36",
+        "分母样本": 6,
+        "留存明细": [
+            {"周期": "第0期", "留存人数": 6, "分母样本": 6, "留存率": 1.0, "群组编号": "COHO-0003"},
+            {"周期": "第1期", "留存人数": 4, "分母样本": 6, "留存率": 0.6667, "群组编号": "COHO-0003"},
+            {"周期": "第2期", "留存人数": 3, "分母样本": 6, "留存率": 0.5, "群组编号": "COHO-0003"},
+            {"周期": "第3期", "留存人数": 2, "分母样本": 6, "留存率": 0.3333, "群组编号": "COHO-0003"},
+        ],
+        "status": "已确认",
+        "pending": False,
+        "abnormal": False,
+        "核对留档": "V001-0001",
+        "停用时点": None,
+        "停用原因": None,
+        "重算状态": None,
+        "created_at": "2026-09-08",
+    },
+]
+
+# V001 留档：矩阵显示完整环节的核对留档，消费端只读取核对通过的确认结果。
+SEED_ROWS["retention_archive"] = [
+    {
+        "id": 1,
+        "留档编号": "V001-0001",
+        "矩阵编号": "RETM-0001",
+        "群组编号": "COHO-0003",
+        "核对环节": "矩阵显示完整",
+        "核对结果": "通过",
+        "核对说明": "矩阵显示完整，每列留存率可回溯到同期群定义",
+        "留档时间": "2026-09-08",
+    },
+]

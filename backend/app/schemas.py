@@ -180,6 +180,18 @@ class CohortTrackEntry(BaseModel):
     field_6: str | None = None  # 分析指标
     field_7: str | None = None  # 对比群组
 
+class RetentionMatrixEntry(BaseModel):
+    """留存矩阵明细结构。"""
+
+    field_0: str | None = None  # 矩阵编号
+    field_1: str | None = None  # 群组编号
+    field_2: str | None = None  # 指标编号
+    field_3: str | None = None  # 周期口径
+    field_4: str | None = None  # 首次行为周期
+    field_5: str | None = None  # 分母样本
+    field_6: str | None = None  # 核对留档
+    field_7: str | None = None  # 停用时点
+
 class ChartConfigEntry(BaseModel):
     """图表配置明细结构。"""
 

@@ -13,6 +13,7 @@ const AnomalyDetect = () => import('@/views/anomaly_detect/index.vue')
 const ForecastModel = () => import('@/views/forecast_model/index.vue')
 const DataExport = () => import('@/views/data_export/index.vue')
 const CohortTrack = () => import('@/views/cohort_track/index.vue')
+const RetentionMatrix = () => import('@/views/retention_matrix/index.vue')
 const ChartConfig = () => import('@/views/chart_config/index.vue')
 const InsightReport = () => import('@/views/insight_report/index.vue')
 const DataFreshness = () => import('@/views/data_freshness/index.vue')
@@ -36,6 +37,7 @@ const router = createRouter({
     { path: '/forecast_model', name: 'forecast_model', component: ForecastModel },
     { path: '/data_export', name: 'data_export', component: DataExport },
     { path: '/cohort_track', name: 'cohort_track', component: CohortTrack },
+    { path: '/retention_matrix', name: 'retention_matrix', component: RetentionMatrix },
     { path: '/chart_config', name: 'chart_config', component: ChartConfig },
     { path: '/insight_report', name: 'insight_report', component: InsightReport },
     { path: '/data_freshness', name: 'data_freshness', component: DataFreshness },

@@ -90,3 +90,12 @@ def run_action(entry_id: int, payload: ActionPayload) -> ActionResult:
     if entry is None:
         return ActionResult(ok=False, message=message)
     return ActionResult(ok=True, message=message, entry=entry)
+
+
+@router.get("/{entry_id}/retention_check", response_model=ActionResult)
+def retention_check(entry_id: int) -> ActionResult:
+    """跨模块联动（V001）：读取留存矩阵数据表的指标编号和周期口径，校验每列留存率。"""
+    result, message = service.validate_retention_columns(entry_id)
+    if result is None:
+        return ActionResult(ok=False, message=message)
+    return ActionResult(ok=not result["问题"], message=message, entry=result)
